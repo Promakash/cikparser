@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	// Поменять имена файлов на свои если хочется
+	// Поменять имена файлов на свои если хочется.
 	const (
 		InputXMLFilename  = "report.xml"
 		OutputCSVFilename = "report.csv"
@@ -17,32 +17,33 @@ func main() {
 
 	report, err := ParseXMLFile(InputXMLFilename)
 	if err != nil {
+		fmt.Println("error while parsing xml file:", err)
 		return
 	}
 
 	err = CreateParsedTable(report, OutputCSVFilename)
 	if err != nil {
+		fmt.Println("error while creating parsed table:", err)
 		return
 	}
 }
 
 func ParseXMLFile(filename string) (*CIKReport, error) {
-	// читаем файл
+	// Читаем файл.
 	fileRaw, err := os.ReadFile(filename)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
 		return nil, err
 	}
 
-	// Добавляем поля, чтобы утилита успешно распарсила файл
+	// Добавляем поля, чтобы утилита успешно распарсила файл.
 	fileWithAdditionalFields := "<Persons>" + string(fileRaw) + "</Persons>"
-	// Переводим в байты чтобы анмаршаллер смог распарсить
+	// Переводим в байты чтобы анмаршаллер смог распарсить.
 	fileWithAdditionalFieldsByteForm := []byte(fileWithAdditionalFields)
 
+	// Анмаршаллим в структуру.
 	var report CIKReport
 	err = xml.Unmarshal(fileWithAdditionalFieldsByteForm, &report)
 	if err != nil {
-		fmt.Println("Error unmarshalling report:", err)
 		return nil, err
 	}
 
@@ -50,10 +51,9 @@ func ParseXMLFile(filename string) (*CIKReport, error) {
 }
 
 func CreateParsedTable(report *CIKReport, outputFileName string) error {
-	// Создаем CSV файл
+	// Создаем CSV файл.
 	csvFile, err := os.Create(outputFileName)
 	if err != nil {
-		fmt.Println("Error creating CSV file:", err)
 		return err
 	}
 	defer func() {
@@ -63,16 +63,15 @@ func CreateParsedTable(report *CIKReport, outputFileName string) error {
 	writer := csv.NewWriter(csvFile)
 	defer writer.Flush()
 
-	// Записываем заголовки
+	// Записываем заголовки csv файла.
 	headers := []string{"Фамилия", "Имя", "Отчество", "Серия паспорта", "Номер паспорта"}
 	if err := writer.Write(headers); err != nil {
-		fmt.Println("Error writing headers:", err)
 		return err
 	}
 
-	// Записываем данные
+	// Записываем данные в csv файл.
 	for _, persona := range report.Personas {
-		// В ответах серия документа разделена пробелами
+		// В ответах серия документа разделена пробелами, нормализуем их.
 		correctedDocSeries := strings.ReplaceAll(persona.Info.Doc.Series, " ", "")
 
 		record := []string{
@@ -84,11 +83,10 @@ func CreateParsedTable(report *CIKReport, outputFileName string) error {
 		}
 
 		if err := writer.Write(record); err != nil {
-			fmt.Println("Error writing record:", err)
 			return err
 		}
 	}
 
-	fmt.Println("CSV файл успешно создан: report.csv")
+	fmt.Println("CSV файл успешно создан: ", outputFileName)
 	return nil
 }
