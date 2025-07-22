@@ -20,6 +20,7 @@ type FIOD struct {
 	LastName   string `xml:"Фамилия,attr"`
 	FirstName  string `xml:"Имя,attr"`
 	Patronymic string `xml:"Отчество,attr"`
+	Birthday   string `xml:"ДатаРожд,attr"`
 }
 
 type Document struct {

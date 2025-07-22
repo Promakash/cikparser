@@ -64,7 +64,7 @@ func CreateParsedTable(report *CIKReport, outputFileName string) error {
 	defer writer.Flush()
 
 	// Записываем заголовки csv файла.
-	headers := []string{"Фамилия", "Имя", "Отчество", "Серия паспорта", "Номер паспорта"}
+	headers := []string{"Фамилия", "Имя", "Отчество", "ДатаРожд", "Серия паспорта", "Номер паспорта"}
 	if err := writer.Write(headers); err != nil {
 		return err
 	}
@@ -78,6 +78,7 @@ func CreateParsedTable(report *CIKReport, outputFileName string) error {
 			persona.Info.FIO.LastName,
 			persona.Info.FIO.FirstName,
 			persona.Info.FIO.Patronymic,
+			persona.Info.FIO.Birthday,
 			correctedDocSeries,
 			persona.Info.Doc.Number,
 		}
